@@ -1,0 +1,17 @@
+---
+- hosts: all
+
+  gather_facts: false
+  pre_tasks:
+    - name: "Ensure python3 is installed"
+      become: true
+      ansible.builtin.raw: |
+        if ! command -v python3 >/dev/null; then
+          pkg_add python3
+        fi
+
+    - name: "Gather facts"
+      ansible.builtin.gather_facts: {}
+
+  roles:
+    - role: openbsd.basesetup

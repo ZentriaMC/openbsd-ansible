@@ -1,0 +1,24 @@
+---
+- name: "openbsd.basesetup : Apply sysctl values"
+  become: true
+  ansible.builtin.shell: |
+    set +o sh
+
+    # Borrowed from /etc/rc
+    stripcom() {
+            local _file=$1 _line
+
+            [[ -s $_file ]] || return
+
+            while read _line ; do
+                    _line=${_line%%#*}
+                    [[ -n $_line ]] && print -r -- "$_line"
+            done <$_file
+    }
+
+    set -- $(stripcom /etc/sysctl.conf)
+    while [[ $# > 0 ]] ; do
+            sysctl "$1"
+            shift
+    done
+

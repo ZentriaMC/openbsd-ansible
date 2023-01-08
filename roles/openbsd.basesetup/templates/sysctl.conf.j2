@@ -1,0 +1,20 @@
+ddb.panic=0
+kern.nosuidcoredump=3
+kern.maxproc=16384
+kern.maxfiles=8192
+kern.seminfo.semmni=256
+kern.seminfo.semmns=2048
+kern.shminfo.shmall=32768
+kern.shminfo.shmmax=50331648
+
+{% if false %}
+# desktop usage
+hw.smt=1
+kern.audio.record=1
+{% endif %}
+
+## amd64
+## if kvm but no pvclock
+# kern.timecounter.hardware=tsc
+## if kvm
+# kern.timecounter.hardware=pvclock

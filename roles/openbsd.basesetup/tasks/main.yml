@@ -1,0 +1,58 @@
+---
+- name: "Ensure /tmp has correct permissions"
+  become: true
+  ansible.builtin.file:
+    path: "/tmp"
+    state: "directory"
+    mode: "1777"
+    owner: "root"
+    group: "wheel"
+
+- name: "Set up /tmp mount"
+  become: true
+  ansible.posix.mount:
+    src: "swap"
+    path: "/tmp"
+    fstype: "mfs"
+    opts: "rw,nodev,nosuid,-s=300m"
+    dump: "0"
+    passno: "0"
+    state: "mounted"
+
+- name: "Disable unused services for headless servers"
+  become: true
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: "stopped"
+    enabled: false
+  loop:
+    - "sndiod"
+  when: >
+    purpose in ['headless']
+
+- name: "Disable unused services"
+  become: true
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: "stopped"
+    enabled: false
+  loop:
+    - "smtpd"
+
+- name: "Lower boot prompt timeout"
+  become: true
+  ansible.builtin.copy:
+    content: |
+      set timeout 1
+    dest: "/etc/boot.conf"
+    mode: "0644"
+
+- name: "Adjust sysctl values"
+  become: true
+  ansible.builtin.template:
+    src: "sysctl.conf.j2"
+    dest: "/etc/sysctl.conf"
+    mode: "0644"
+  notify:
+    - "openbsd.basesetup : Apply sysctl values"
+
